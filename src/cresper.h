@@ -1,12 +1,16 @@
 #ifndef __CRSPER_H__
 #define __CRSPER_H__
 
+#include <sstream>
 #include <string>
 #include <nan.h>
 #include <v8.h>
 #include <node.h>
 
 namespace cresper {
+
+#define MAKE_BUFFER(string)                                   \
+  (Nan::CopyBuffer((string).c_str(), (string).length()))
 
 #define RETURN_STRING_BUFFER(info, string)                    \
   info.GetReturnValue()                                       \
@@ -22,11 +26,15 @@ namespace cresper {
     return;                                                   \
   }
 
+#define SSTR(x) static_cast< std::ostringstream & >(          \
+        (std::ostringstream() << std::dec << x )).str()
+
 extern const std::string CRLF = "\r\n";
 extern const std::string STRING_PREFIX = "+";
 extern const std::string INT_PREFIX = ":";
 extern const std::string ERROR_PREFIX = "-";
 extern const std::string BULK_STRING_PREFIX = "$";
+extern const std::string ARRAY_PREFIX = "*";
 
 class Cresper : public Nan::ObjectWrap {
 public:
@@ -42,6 +50,8 @@ private:
   static void New (const Nan::FunctionCallbackInfo<v8::Value>& info);
 
   // Encoding functions
+  static std::string _encodeArray (const v8::Local<v8::Array>& arrayToEncode);
+  static inline std::string _encodeBulkString (const v8::Local<v8::Value>& stringToEncode);
   NODE_FUNCTION(encodeString)
   NODE_FUNCTION(encodeError)
   NODE_FUNCTION(encodeInt)
