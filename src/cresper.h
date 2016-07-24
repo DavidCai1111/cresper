@@ -58,7 +58,6 @@ private:
   NODE_FUNCTION(encodeRequestArray)
 
   // Decoding functions
-  // static v8::Local<v8::Value> _decode (DecodeMsg& msg);
   NODE_FUNCTION(decode)
 };
 
