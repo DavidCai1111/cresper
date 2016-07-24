@@ -18,32 +18,30 @@ describe('Cresper test', () => {
 
     (() => cresper.encodeArray('jaja')).should.throw(/should be an array/);
 
-    (() => cresper.encodeArray(['jaja'])).should.throw(/should be an instance of Buffer/)
+    (() => cresper.encodeArray(['jaja'])).should.throw(/should be an instance of Buffer/);
 
-    // (() => cresper.decode(['jaja'])).should.throw(/should be an instance of Buffer/)
+    (() => cresper.decode(['jaja'])).should.throw(/should be an instance of Buffer/)
   })
 
-  // it('Should decode right', () => {
-  //   Resper.decode(Resper.encodeString('jaja'))[0].should.eql('jaja')
+  it('Should decode right', () => {
+    cresper.decode(cresper.encodeString('jaja')).should.eql('jaja')
 
-  //   let error = Resper.decode(Resper.encodeError(new TypeError('heheda')))[0]
-  //   error.name.should.eql('TypeError')
-  //   error.message.should.eql('heheda')
+    let error = cresper.decode(cresper.encodeError(new TypeError('heheda')))
+    error.name.should.eql('TypeError:')
+    error.message.should.eql('heheda')
 
-  //   Resper.decode(Resper.encodeInt(998))[0].should.eql(998)
-
-  //   Resper.decode(Resper.encodeBulkString('bulkjaja'))[0].should.eql('bulkjaja')
-  //   should(Resper.decode(Resper.encodeNull())[0]).be.null()
-
-  //   let _err = new Error('heheda')
-  //   _err.name = 'Error'
-  //   Resper.decode(Resper.encodeArray([
-  //     Resper.encodeInt(1),
-  //     Resper.encodeString('str'),
-  //     Resper.encodeNullArray(),
-  //     Resper.encodeError(new Error('heheda'))
-  //   ]))[0].should.eql([1, 'str', null, _err])
-  // })
+    cresper.decode(cresper.encodeInt(998)).should.eql(998)
+    cresper.decode(cresper.encodeBulkString('bulkjaja')).should.eql('bulkjaja')
+    should(cresper.decode(cresper.encodeNull())).be.null()
+    let _err = new Error('heheda')
+    _err.name = 'Error:'
+    cresper.decode(cresper.encodeArray([
+      cresper.encodeInt(1),
+      cresper.encodeString('str'),
+      cresper.encodeNullArray(),
+      cresper.encodeError(new Error('heheda'))
+    ])).should.eql([1, 'str', null, _err])
+  })
 
   it('Should encode string right', () => {
     cresper.encodeString('jaja').toString().should.eql(`+jaja${CRLF}`)
