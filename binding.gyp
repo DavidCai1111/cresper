@@ -2,7 +2,7 @@
   "targets": [
     {
       "target_name": "cresper-binding",
-      "sources": ["./src/cresper.cc"],
+      "sources": ["./src/cresper.cc", "./src/decode_msg.cc"],
       "include_dirs" : ["<!(node -e \"require('nan')\")"],
       "cflags": [
         "-std=c++11",
