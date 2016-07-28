@@ -16,9 +16,6 @@ namespace cresper {
     .Set(Nan::CopyBuffer((string).c_str(), (string).length()) \
     .ToLocalChecked());
 
-#define NODE_FUNCTION(name)                                   \
-  static void name (const Nan::FunctionCallbackInfo<v8::Value>& info);
-
 #define CHECK_ARG(isInvalid, info)                            \
   if (!isInvalid) {                                           \
     Nan::ThrowTypeError(info);                                \
@@ -48,17 +45,17 @@ private:
   // Encoding functions
   static std::string _encodeArray (const v8::Local<v8::Array>& arrayToEncode);
   static inline std::string _encodeBulkString (const v8::Local<v8::Value>& stringToEncode);
-  NODE_FUNCTION(encodeString)
-  NODE_FUNCTION(encodeError)
-  NODE_FUNCTION(encodeInt)
-  NODE_FUNCTION(encodeBulkString)
-  NODE_FUNCTION(encodeNull)
-  NODE_FUNCTION(encodeNullArray)
-  NODE_FUNCTION(encodeArray)
-  NODE_FUNCTION(encodeRequestArray)
+  static NAN_METHOD(encodeString);
+  static NAN_METHOD(encodeError);
+  static NAN_METHOD(encodeInt);
+  static NAN_METHOD(encodeBulkString);
+  static NAN_METHOD(encodeNull);
+  static NAN_METHOD(encodeNullArray);
+  static NAN_METHOD(encodeArray);
+  static NAN_METHOD(encodeRequestArray);
 
   // Decoding functions
-  NODE_FUNCTION(decode)
+  static NAN_METHOD(decode);
 };
 
 }
