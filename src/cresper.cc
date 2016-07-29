@@ -20,7 +20,7 @@ extern const string ARRAY_PREFIX = "*";
 
 NAN_MODULE_INIT(Cresper::Init) {
   Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
-  tpl->SetClassName(Nan::New("Cresper").ToLocalChecked());
+  tpl->SetClassName(Nan::New<String>("Cresper").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(9);
 
   Nan::SetPrototypeMethod(tpl, "encodeString", encodeString);
@@ -45,29 +45,24 @@ NAN_METHOD(Cresper::New) {
 }
 
 NAN_METHOD(Cresper::encodeString) {
-  Local<Value> stringToEncode = info[0];
+  CHECK_ARG(info[0]->IsString(), "Argument should be a string");
 
-  CHECK_ARG(stringToEncode->IsString(), "Argument should be a string");
-
-  RETURN_STRING_BUFFER(info, STRING_PREFIX + string(*Nan::Utf8String(stringToEncode)) + CRLF)
+  RETURN_STRING_BUFFER(info, STRING_PREFIX + string(*Nan::Utf8String(info[0])) + CRLF)
 }
 
 NAN_METHOD(Cresper::encodeInt) {
-  Local<Value> intToEncode = info[0];
+  CHECK_ARG(info[0]->IsNumber(), "Argument should be an integer");
 
-  CHECK_ARG(intToEncode->IsNumber(), "Argument should be an integer");
-
-  RETURN_STRING_BUFFER(info, INT_PREFIX + string(*Nan::Utf8String(intToEncode)) + CRLF)
+  RETURN_STRING_BUFFER(info, INT_PREFIX + string(*Nan::Utf8String(info[0])) + CRLF)
 }
 
 NAN_METHOD(Cresper::encodeError) {
-  Local<Value> errorToEncode = info[0];
-  const bool isError = Nan::Equals(Nan::ObjectProtoToString(errorToEncode->ToObject()).ToLocalChecked(),
+  const bool isError = Nan::Equals(Nan::ObjectProtoToString(info[0]->ToObject()).ToLocalChecked(),
     Nan::New("[object Error]").ToLocalChecked()).FromJust();
 
   CHECK_ARG(isError, "Argument should be an instance of Error");
 
-  RETURN_STRING_BUFFER(info, ERROR_PREFIX + string(*Nan::Utf8String(errorToEncode)) + CRLF)
+  RETURN_STRING_BUFFER(info, ERROR_PREFIX + string(*Nan::Utf8String(info[0])) + CRLF)
 }
 
 inline string Cresper::_encodeBulkString (const v8::Local<v8::Value>& stringToEncode) {
@@ -77,11 +72,9 @@ inline string Cresper::_encodeBulkString (const v8::Local<v8::Value>& stringToEn
 }
 
 NAN_METHOD(Cresper::encodeBulkString) {
-  Local<Value> stringToEncode = info[0];
+  CHECK_ARG(info[0]->IsString(), "Argument should be a string");
 
-  CHECK_ARG(stringToEncode->IsString(), "Argument should be a string");
-
-  const string encoded = _encodeBulkString(stringToEncode);
+  const string encoded = _encodeBulkString(info[0]);
 
   RETURN_STRING_BUFFER(info, encoded)
 }
