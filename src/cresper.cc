@@ -57,26 +57,16 @@ NAN_METHOD(Cresper::encodeInt) {
 }
 
 NAN_METHOD(Cresper::encodeError) {
-  const bool isError = Nan::Equals(Nan::ObjectProtoToString(info[0]->ToObject()).ToLocalChecked(),
-    Nan::New("[object Error]").ToLocalChecked()).FromJust();
-
-  CHECK_ARG(isError, "Argument should be an instance of Error");
+  CHECK_ARG(Nan::Equals(Nan::ObjectProtoToString(info[0]->ToObject()).ToLocalChecked(), Nan::New("[object Error]").ToLocalChecked()).FromJust(),
+    "Argument should be an instance of Error");
 
   RETURN_STRING_BUFFER(info, ERROR_PREFIX + string(*Nan::Utf8String(info[0])) + CRLF)
-}
-
-inline string Cresper::_encodeBulkString (const v8::Local<v8::Value>& stringToEncode) {
-  return BULK_STRING_PREFIX
-    + std::to_string(stringToEncode->ToString()->Utf8Length()) + CRLF
-    + string(*Nan::Utf8String(stringToEncode)) + CRLF;
 }
 
 NAN_METHOD(Cresper::encodeBulkString) {
   CHECK_ARG(info[0]->IsString(), "Argument should be a string");
 
-  const string encoded = _encodeBulkString(info[0]);
-
-  RETURN_STRING_BUFFER(info, encoded)
+  RETURN_STRING_BUFFER(info, MAKE_BULK_STRING(info[0]))
 }
 
 NAN_METHOD(Cresper::encodeNull) {
@@ -89,21 +79,16 @@ NAN_METHOD(Cresper::encodeNullArray) {
 
 NAN_METHOD(Cresper::encodeArray) {
   CHECK_ARG(info[0]->IsArray(), "Argument should be an array");
+  Local<Array> arrayToEncode = Local<Array>::Cast(info[0]);
 
-  const string encoded = _encodeArray(Local<Array>::Cast(info[0]));
+  string encoded = ARRAY_PREFIX + std::to_string(arrayToEncode->Length()) + CRLF;
 
-  RETURN_STRING_BUFFER(info, encoded);
-}
-
-string Cresper::_encodeArray (const Local<Array>& arrayToEncode) {
-  const size_t len = arrayToEncode->Length();
-  string encoded = ARRAY_PREFIX + std::to_string(len) + CRLF;
-
-  for (size_t i = 0; i < len; i++) {
+  for (size_t i = 0; i < arrayToEncode->Length(); i++) {
     Local<Value> element = Nan::Get(arrayToEncode, i).ToLocalChecked();
 
     if (element->IsArray()) {
-      encoded += _encodeArray(Local<Array>::Cast(element));
+      Local<Value> argv[] = {element};
+      encoded += string(*Nan::Utf8String(Nan::Call(info.Callee(), info.This(), 1, argv).ToLocalChecked()));
     } else {
       if (!element->IsUint8Array())
         Nan::ThrowTypeError("Each array element should be an instance of Buffer");
@@ -112,7 +97,7 @@ string Cresper::_encodeArray (const Local<Array>& arrayToEncode) {
     }
   }
 
-  return encoded;
+  RETURN_STRING_BUFFER(info, encoded);
 }
 
 NAN_METHOD(Cresper::encodeRequestArray) {
@@ -123,13 +108,13 @@ NAN_METHOD(Cresper::encodeRequestArray) {
   Local<Array> request = Nan::New<Array>(len);
 
   for (size_t i = 0; i < len; i++) {
-    Nan::Set(request, i, MAKE_BUFFER(_encodeBulkString(arrayToEncode->Get(i)))
+    Nan::Set(request, i, MAKE_BUFFER(MAKE_BULK_STRING(arrayToEncode->Get(i)))
       .ToLocalChecked());
   }
 
-  const string encoded = _encodeArray(request);
-
-  RETURN_STRING_BUFFER(info, encoded)
+  Local<Value> argv[] = {request};
+  info.GetReturnValue()
+    .Set(Nan::Call(Nan::New<Function>(encodeArray), info.This(), 1, argv).ToLocalChecked());
 }
 
 NAN_METHOD(Cresper::decode) {

@@ -8,6 +8,12 @@
 
 namespace cresper {
 
+#define MAKE_BULK_STRING(stringToEncode)                      \
+  (BULK_STRING_PREFIX                                         \
+    + std::to_string(stringToEncode->ToString()->Utf8Length())\
+    + CRLF                                                    \
+    + string(*Nan::Utf8String(stringToEncode)) + CRLF)
+
 #define MAKE_BUFFER(string)                                   \
   (Nan::CopyBuffer((string).c_str(), (string).length()))
 
@@ -43,8 +49,6 @@ private:
   static void New (const Nan::FunctionCallbackInfo<v8::Value>& info);
 
   // Encoding functions
-  static std::string _encodeArray (const v8::Local<v8::Array>& arrayToEncode);
-  static inline std::string _encodeBulkString (const v8::Local<v8::Value>& stringToEncode);
   static NAN_METHOD(encodeString);
   static NAN_METHOD(encodeError);
   static NAN_METHOD(encodeInt);
