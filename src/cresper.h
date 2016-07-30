@@ -17,9 +17,10 @@ namespace cresper {
 #define MAKE_BUFFER(string)                                   \
   (Nan::CopyBuffer((string).c_str(), (string).length()))
 
-#define RETURN_STRING_BUFFER(info, string)                    \
+#define RETURN_STRING_BUFFER(info, strResult)                 \
+  std::string str = strResult;                                \
   info.GetReturnValue()                                       \
-    .Set(Nan::CopyBuffer((string).c_str(), (string).length()) \
+    .Set(Nan::CopyBuffer(str.c_str(), str.length())           \
     .ToLocalChecked());
 
 #define CHECK_ARG(isInvalid, info)                            \

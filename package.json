@@ -8,7 +8,8 @@
     "test": "npm run configure && npm run build && npm i && ./node_modules/.bin/standard &&./node_modules/.bin/_mocha",
     "configure": "./node_modules/.bin/node-gyp configure",
     "build": "./node_modules/.bin/node-gyp build",
-    "install": "./node_modules/.bin/node-gyp rebuild"
+    "install": "./node_modules/.bin/node-gyp rebuild",
+    "bench": "npm run configure && npm run build && npm i && ./node_modules/.bin/matcha bench/bench.js"
   },
   "repository": {
     "type": "git",
@@ -21,6 +22,7 @@
   },
   "homepage": "https://github.com/DavidCai1993/cresper#readme",
   "devDependencies": {
+    "matcha": "^0.7.0",
     "mocha": "^2.5.3",
     "should": "^10.0.0",
     "standard": "^7.1.2"
